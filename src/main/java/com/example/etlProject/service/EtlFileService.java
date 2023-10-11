@@ -22,7 +22,7 @@ public class EtlFileService {
     private static final String FILE_TYPE = "text/csv";
 
     @Autowired
-    private EtlEmployeeRepository etlEmployeeRepository;
+    EtlEmployeeRepository etlEmployeeRepository;
 
     public boolean validateFile(MultipartFile file) {
         return FILE_TYPE.equalsIgnoreCase(file.getContentType());
