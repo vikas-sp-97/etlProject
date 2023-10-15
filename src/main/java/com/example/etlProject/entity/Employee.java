@@ -28,6 +28,8 @@ public class Employee {
     @NonNull
     private Date dateOfBirth;
 
+    private String emailAddress;
+
     private String department;
 
     private int age;

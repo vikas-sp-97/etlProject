@@ -1,6 +1,8 @@
 package com.example.etlProject.service;
 
+import com.example.etlProject.dto.User;
 import com.example.etlProject.entity.Employee;
+import com.example.etlProject.feign.DashboardInterface;
 import com.example.etlProject.repository.EtlEmployeeRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -23,6 +25,9 @@ public class EtlFileService {
 
     @Autowired
     EtlEmployeeRepository etlEmployeeRepository;
+
+    @Autowired
+    DashboardInterface dashboardInterface;
 
     public boolean validateFile(MultipartFile file) {
         return FILE_TYPE.equalsIgnoreCase(file.getContentType());
@@ -48,12 +53,15 @@ public class EtlFileService {
                 try{
 
                     Employee e = Employee.builder()
-                        .firstName(record.get(0))
-                        .lastName(record.get(1))
-                        .dateOfBirth(Date.valueOf(record.get(2)))
-                        .department(record.get(3))
-                        .age(Integer.parseInt(record.get(4)))
-                        .build();
+                            .firstName(record.get(0))
+                            .lastName(record.get(1))
+                            .dateOfBirth(Date.valueOf(record.get(2)))
+                            .department(record.get(3))
+                            .age(Integer.parseInt(record.get(4)))
+                            .emailAddress(record.get(5))
+                            .build();
+
+                    processUserRegistry(e);
 
                     etlEmployeeRepository.save(e);
                 }
@@ -70,6 +78,18 @@ public class EtlFileService {
 
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private void processUserRegistry(Employee e) {
+        if(!e.getEmailAddress().isEmpty()){
+            User user = User.builder()
+                    .username(e.getEmailAddress())
+                    .active("Active")
+                    .build();
+
+            ResponseEntity<?> res = dashboardInterface.registerClientUser(user);
+            System.out.println(res.getBody());
         }
     }
 
